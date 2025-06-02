@@ -12,7 +12,7 @@ enum Phase{
 	Finished,
 	NotTouched
 };
-type State = {phase:Phase, typingCount:number, elapsed:number,prevTime?:number,lastTypedTime?:number,timer?:NodeJS.Timer};
+type State = {phase:Phase, typingCount:number, elapsed:number,prevTime?:number,lastTypedTime?:number,timer?:NodeJS.Timeout};
 type Props = {lazyElements:LazyElements, resetApp:()=>void, startSelector:()=>void};
 
 export class PlainTyping extends Component<Props, State>{

@@ -38,7 +38,7 @@ export const createChromeSyncedReactContext = <T,>(defaultOption: T) => {
 			this.setState({ ...defaultOption } as any,this._save);
 		}
 		_save = () => {
-			const entries = Object.keys(defaultOption).map(k => [k, this.state[k as keyof State<T>]]);
+			const entries = Object.keys(defaultOption as Record<string, any>).map(k => [k, this.state[k as keyof State<T>]]);
 
 			chrome.storage.local.set(Object.fromEntries(entries));
 		}
@@ -46,7 +46,7 @@ export const createChromeSyncedReactContext = <T,>(defaultOption: T) => {
 			if (areaName !== "local") return;
 
 			const entries = Object.keys(changes)
-				.filter(k => k in defaultOption)
+				.filter(k => k in (defaultOption as Record<string, any>))
 				.map(k => [k, changes[k].newValue]);
 
 			this.setState(Object.fromEntries(entries));
@@ -54,7 +54,7 @@ export const createChromeSyncedReactContext = <T,>(defaultOption: T) => {
 
 		componentDidMount() {
 			chrome.storage.onChanged.addListener(this.onChromeStorageChanged);
-			chrome.storage.local.get(Object.keys(defaultOption), (opt) => {
+			chrome.storage.local.get(Object.keys(defaultOption as Record<string, any>), (opt) => {
 				this.setState({ ...defaultOption, ...opt } as any);
 			});
 		}

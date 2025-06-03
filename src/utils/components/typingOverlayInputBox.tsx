@@ -478,6 +478,11 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 							);
 						}}
 						id={styles.typingTextTextArea}
+						spellCheck={false}
+						autoComplete="off"
+						autoCorrect="off"
+						autoCapitalize="off"
+						data-gramm_editor="false"
 						onKeyDown={this.onKeyDown}
 						onKeyUp={this.onKeyUp}
 						onBlur={this.onBlur}

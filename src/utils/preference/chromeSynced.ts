@@ -12,6 +12,9 @@ const defaultOption = {
 	normalizeAccents: false,
 	skipSpecialChars: false,
 	useLowercaseOnly: false,
+	fontFamily: "inherit",
+	fontSize: "inherit",
+	fontWeight: false,
 };
 export type OptionType = typeof defaultOption;
 

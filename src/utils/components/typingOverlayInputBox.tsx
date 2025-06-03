@@ -192,18 +192,31 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 
 		const minHeight = this.prevs.map(p => getBoundingRect(p.element).height).reduce((lhs, rhs) => Math.max(lhs, rhs), 0);
 		const textWrapped = nrrects > this.currentTextContent.split('\n').length;
-		this.setState({
-			containerDivStyle: {
-				top: absPos.bottom,
-				minHeight: minHeight
-			},
-			inputAreaStyle: {
-				left: absPos.left,
-				width: textWrapped ? `${textRect.width}px` : `calc(100% - ${absPos.left}px)`,
-				font: computedStyle.font,
-				wordSpacing: computedStyle.wordSpacing as any,
-				letterSpacing: computedStyle.letterSpacing
-			}
+		
+		if (!computedStyle) {
+			computedStyle = window.getComputedStyle(this.currentElement!);
+		}
+		
+		chrome.storage.local.get(['fontFamily', 'fontSize', 'fontWeight'], (result) => {
+			const fontFamily = result.fontFamily === 'inherit' ? computedStyle!.fontFamily : result.fontFamily || computedStyle!.fontFamily;
+			const fontSize = result.fontSize === 'inherit' ? computedStyle!.fontSize : result.fontSize || computedStyle!.fontSize;
+			const fontWeight = result.fontWeight ? 'bold' : computedStyle!.fontWeight;
+			
+			this.setState({
+				containerDivStyle: {
+					top: absPos.bottom,
+					minHeight: minHeight
+				},
+				inputAreaStyle: {
+					left: absPos.left,
+					width: textWrapped ? `${textRect!.width}px` : `calc(100% - ${absPos.left}px)`,
+					fontFamily: fontFamily,
+					fontSize: fontSize,
+					fontWeight: fontWeight,
+					wordSpacing: computedStyle!.wordSpacing as any,
+					letterSpacing: computedStyle!.letterSpacing
+				}
+			});
 		});
 	}
 	computeSpanStyle(el?: Element) {
@@ -455,7 +468,13 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 						this.prevs.map((prev, i) =>
 							<span
 								className={styles.span}
-								style={{ ...prev.style, color: theme.typingOverlayFg }}
+								style={{ 
+									...prev.style, 
+									color: theme.typingOverlayFg,
+									fontFamily: inputStyle.fontFamily,
+									fontSize: inputStyle.fontSize,
+									fontWeight: inputStyle.fontWeight
+								}}
 								key={i}
 							>
 								{prev.textContent}
@@ -469,7 +488,9 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 								["left", `${inputStyle.left}px`],
 								["width", inputStyle.width],
 								["min-width", inputStyle.width],
-								["font", inputStyle.font],
+								["font-family", inputStyle.fontFamily],
+								["font-size", inputStyle.fontSize],
+								["font-weight", inputStyle.fontWeight],
 								["word-spacing", inputStyle.wordSpacing],
 								["color", inputStyle.color],
 								["letter-spacing", inputStyle.letterSpacing],

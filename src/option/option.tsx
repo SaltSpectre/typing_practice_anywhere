@@ -43,6 +43,13 @@ const GeneralOption:FC = () => {
 			<h1>General</h1>
 			<SyncedCheckbox label="Use CPM instead of WPM" optionkey="useCpm" />
 			<SyncedCheckbox label="Animated" optionkey="animated" />
+			
+			<h2>Text Processing</h2>
+			<SyncedCheckbox label="Normalize special characters" optionkey="normalizeSpecialChars" />
+			<SyncedCheckbox label="Normalize accented characters (é to e)" optionkey="normalizeAccents" />
+			<SyncedCheckbox label="Skip special characters during typing" optionkey="skipSpecialChars" />
+			<SyncedCheckbox label="Use lowercase only" optionkey="useLowercaseOnly" />
+			
 			<generalOptionContextType.Consumer>
 				{(context) => (
 					<button onClick={context._reset}>Reset</button>

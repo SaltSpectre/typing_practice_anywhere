@@ -6,6 +6,7 @@ import styles from "./typingOverlayInputBox.module.scss";
 import Rx, { fromEvent, merge, Observable, Subject } from "rxjs";
 import { filter, map } from "rxjs/operators";
 import { generalOptionContextType } from "../preference/general";
+import { TextNormalizer, TextNormalizationOptions } from "../textNormalization";
 
 
 const getTextContent = (nd: Node):string => {
@@ -22,7 +23,7 @@ const getTextContent = (nd: Node):string => {
 	// 	}
 	// 	return rec.join("");
 	// } else {
-		return nd.innerText;
+		return nd.textContent ?? "";
 	// }
 }
 const getBoundingRect = (nd: Element) => {
@@ -93,6 +94,33 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 	currentTextContent: string;
 	currentElement?: Element;
 	resetPlaceholder = () => { };
+	
+	normalizeCurrentText = () => {
+		if (!this.currentElement) return;
+		
+		chrome.storage.local.get(['normalizeSpecialChars', 'normalizeAccents', 'skipSpecialChars', 'useLowercaseOnly'], (result) => {
+			const normalizationOptions: TextNormalizationOptions = {
+				normalizeSpecialChars: result.normalizeSpecialChars ?? true,
+				normalizeAccents: result.normalizeAccents ?? false,
+				skipSpecialChars: result.skipSpecialChars ?? false,
+				useLowercaseOnly: result.useLowercaseOnly ?? false
+			};
+			
+			const originalText = this.currentTextContent;
+			const normalizer = new TextNormalizer(normalizationOptions);
+			let processedText = this.currentTextContent;
+			
+			
+			processedText = normalizer.normalizeText(processedText);
+			this.currentTextContent = processedText;
+			
+			if (this.currentTextContent !== originalText) {
+				this.updateStyles();
+				this.resetPlaceholder();
+				this.forceUpdate();
+			}
+		});
+	};
 	prevSelection = [0, 0];
 
 	autoScrollMutationObserver;
@@ -209,10 +237,13 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 			this.prevs.push(nextPrev as any);
 			
 		const textContent = getTextContent(this.currentElement!);
-		this.currentTextContent = textContent
+		let processedText = textContent
 			.replaceAll(/\[\d+?\]/g, "") // ignore [n]
 			.replaceAll("[edit]", "") // ignore [edit]
 			.replaceAll(" ", " ").trim(); // convert nonbreaking space to normal space first and then trim
+		this.currentTextContent = processedText;
+		this.normalizeCurrentText();
+		
 		this.updateStyles();
 		this.prevSelection = [0, 0];
 		if (this.inputRef) this.inputRef.selectionStart = this.inputRef.selectionEnd = 0;
@@ -388,6 +419,7 @@ export class TypingOverlayInputBox extends Component<Props, State>{
 
 	}
 	onUpdatedValue = ()=>{
+		
 		while (this.inputRef?.value.startsWith(this.currentTextContent)) {
 			this.inputRef.value = this.inputRef.value.substr(this.currentTextContent.length);
 			this.nextTextContent();

@@ -8,6 +8,10 @@ const defaultOption = {
 	composingText: "#46F6FF",
 	useCpm: true,
 	animated: true,
+	normalizeSpecialChars: true,
+	normalizeAccents: false,
+	skipSpecialChars: false,
+	useLowercaseOnly: false,
 };
 export type OptionType = typeof defaultOption;
 

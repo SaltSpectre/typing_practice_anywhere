@@ -44,7 +44,7 @@ export class TextNormalizer {
 			.replace(/[\u2018\u2019]/g, "'")
 			.replace(/[\u201C\u201D]/g, '"')
 			// En/em dashes to regular hyphens
-			.replace(/[–—]/g, '-')
+			.replace(/[–—]/g, '--')
 			// Ellipsis to three dots
 			.replace(/…/g, '...')
 			// Other common special characters
